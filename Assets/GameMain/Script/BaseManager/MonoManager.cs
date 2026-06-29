@@ -46,8 +46,24 @@ public class MonoManager : BaseManager<MonoManager>
     }
     public Coroutine StartCoroutine(string methodName ,[DefaultValue("null")]object value)
     {
-        return controller.StartCoroutine(methodName);
+        return controller.StartCoroutine(methodName , value);
     }
 
+    //开启协程
+    public Coroutine StartCoroutine(IEnumerator routine)
+    {
+        return controller.StartCoroutine(routine);
+    }
+
+    //停止协程
+    public void StopCoroutine(IEnumerator routine)
+    {
+        controller.StopCoroutine(routine);
+    }
+
+    public void StopCoroutine(Coroutine routine)
+    {
+        controller.StopCoroutine(routine);
+    }
 
 }

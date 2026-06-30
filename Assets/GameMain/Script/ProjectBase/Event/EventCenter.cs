@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using ProjectBase.Input;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -233,5 +235,10 @@ public class EventCenter : BaseManager<EventCenter>
     public void Clear()
     {
         eventDic.Clear();
+    }
+
+    internal void Send(object evntId, SceneLoadingEventArgs sceneLoadingEventArgs)
+    {
+        throw new NotImplementedException();
     }
 }

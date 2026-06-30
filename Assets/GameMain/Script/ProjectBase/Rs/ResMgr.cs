@@ -38,7 +38,6 @@ public class ResMgr : BaseManager<ResMgr>
         {   
             ///编辑器模式 开发阶段使用 直接工程内读取资源文件
             ///可以直接开发调式
-            ///
             case EPlayMode.EditorSimulateMode:
                 {   
                     //自动弓箭编辑器模拟资源目录
@@ -126,4 +125,111 @@ public class ResMgr : BaseManager<ResMgr>
             Debug.Log("资源清单Manifes更新失败" + updateOperation.Error);
         }
     }
+
+    /// <summary>
+    /// 管理器销毁入口：游戏退出 场景销毁
+    /// 启动协程异步销毁资源包
+    /// </summary>
+    public void Ondestroy()
+    {
+        MonoManager.GetInstance().StartCoroutine(DestroyPackage());
+    }
+
+    private IEnumerator DestroyPackage()
+    {
+        //获取默认资源包
+        var package = YooAssets.GetPackage("DefaultPackage");
+        //异步销毁包 释放所有加载的资源 纹理 模型 GameObject。。。。
+        DestroyOperation operation = package.DestroyAsync();
+        yield return operation;
+
+        bool removeResult = YooAssets.RemovePackage(package);
+        if (removeResult)
+        {
+            Debug.Log("DufaultPackage资源包移除成功,内存已释放");
+        }
+    }
+#region 同步加载接口
+    /// <summary>
+    /// 同步加载资源(无父物体 仅加载资源 GameObject会自动实例化)
+    /// </summary>
+    /// <typeparam name="T">资源类型：GameObject/Texture/Sprite</typeparam>
+    /// <param name="path">YooAsset里的完整路径</param>
+    /// <returns></returns>
+    public T Load<T>(string path) where T : Object
+    {
+        return Load<T>(path,null);
+    }
+
+    /// <summary>
+    /// 同步加载资源 支持指定实例化父物体 只对GameObject生效
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="path"></param>
+    /// <param name="parent"></param>
+    /// <returns></returns>
+    public T Load<T>(string path,Transform parent) where T : Object
+    {
+        //同步加载资源句柄
+        var handle = _package.LoadAssetAsync<T>(path);
+
+        //如果加载的是预制体的GameObject 直接实例化并设置父节点
+        if(typeof(T) == typeof(GameObject))
+        {
+            GameObject go = handle.InstantiateSync();
+            if(parent != null)
+            {
+                go.transform.SetParent(parent,false);
+            }
+            return go as T;
+        }
+        //纹理 音效 材质等资源直接返回资源对象 不实例化
+        else
+        {
+            return handle.AssetObject as T;
+        }
+    }
+
+
+#endregion
+
+#region 异步加载接口
+    /// <summary>
+    /// 异步
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="name"></param>
+    /// <param name="action"></param>
+    public void LoadAsvnc<T>(string name,UnityAction<T> action) where T : Object
+        {
+            //胃痛Mono管理器开启协程处理异步加载
+            MonoManager.GetInstance().StartCoroutine(LoadAsvncIE(name,action));
+        }
+
+    /// <summary>
+    /// 异步加载内部协程实现
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="path"></param>
+    /// <param name="action"></param>
+    /// <returns></returns>
+    private IEnumerator LoadAsvncIE<T>(string path,UnityAction<T> action) where T : Object
+    {
+        //发起异步资源加载句柄
+        AssetHandle handle = _package.LoadAssetAsync<T>(path);
+
+        yield return handle;
+
+        //获取原始资源对象
+        T assetObject = handle.AssetObject as T;
+
+        if(typeof(T) == typeof(GameObject))
+        {
+            GameObject go = handle.InstantiateSync();
+            action?.Invoke(go as T);
+            yield break;
+        }
+        action?.Invoke(assetObject);
+    }
+#endregion
 }

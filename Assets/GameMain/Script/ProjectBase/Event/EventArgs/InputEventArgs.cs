@@ -23,7 +23,7 @@ namespace ProjectBase.Input
         public static readonly string EventId = typeof(inputUpEventArgs).GetHashCode().ToString();
 
         public InputAction inputAction;
-        public static inputUpEventArgs Create(InputUpAction action)
+        public static inputUpEventArgs Create(InputAction action)
         {
             var eventArgs = new inputUpEventArgs();
             eventArgs.inputAction = action;
@@ -36,7 +36,7 @@ namespace ProjectBase.Input
         public static readonly string EventId = typeof(inputDownEventArgs).GetHashCode().ToString();
 
         public InputAction inputAction;
-        public static inputDownEventArgs Create(InputDownAction action)
+        public static inputDownEventArgs Create(InputAction action)
         {
             var eventArgs = new inputDownEventArgs();
             eventArgs.inputAction = action;

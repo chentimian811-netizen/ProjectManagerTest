@@ -12,9 +12,8 @@ public class ShowOptimumRoadVFXArgs
         e.VisualEffectDesc = VisualEffectDesc;
         return e;
     }
-
-    
 }
+
 //显示选中特效
 public class ShowSelectVFXArgs
 {

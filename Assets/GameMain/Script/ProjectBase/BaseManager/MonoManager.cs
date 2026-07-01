@@ -4,7 +4,6 @@ using UnityEngine;
 using UnityEngine.Events;
 using System.ComponentModel;
 
-
 public class MonoManager : BaseManager<MonoManager>
 {
     private MonoController controller;
@@ -44,6 +43,7 @@ public class MonoManager : BaseManager<MonoManager>
     {
         return controller.StartCoroutine(methodName);
     }
+    
     public Coroutine StartCoroutine(string methodName ,[DefaultValue("null")]object value)
     {
         return controller.StartCoroutine(methodName , value);
